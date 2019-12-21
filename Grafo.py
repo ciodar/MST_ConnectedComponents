@@ -1,111 +1,88 @@
-from random import random
+import random
 from Nodo import Nodo
+import networkx as nx
+import matplotlib.pyplot as plt
+WEIGHT_MIN = 1
+WEIGHT_MAX = 10
 
 class Grafo:
 
     def __init__(self, n, p):
-        self.m = self.createRandom(n, p)
-        self.nodi = []
+        self.nodi,self.m = self.createRandom(n, p)
+    #def __init__(self):
+    #    self.nodi = set()
+    #    self.m = set()
+
+    # POST: creates a random connected graph with a V-1 edges
+    def createRandom(self, n, p):
+        nodi = set()
+        m = dict()
         for i in range(n):
             nodo = Nodo(i)
-            self.nodi.append(nodo)
-
-    def createRandom(self, n, p):
-        m = []
-        for i in range(n):
-            m.append([])
+            nodi.add(nodo)
             for j in range(n):
-                r = random()
+                r = random.random()
                 if r <= float(p)/100:
-                    m[i].append(1)
-                else:
-                    m[i].append(0)
-        return m
+                    w = random.randint(WEIGHT_MIN, WEIGHT_MAX)
+                    edge = (j,w)
+                    edge2 = (i,w)
+                    if i not in m.keys():
+                        m[i] = set()
+                    m[i].add(edge)
+                    if j not in m.keys():
+                        m[j] = set()
+                    m[j].add(edge2)
+        return nodi,m
 
-    def DFS(self):
-        for i in self.nodi:
-            i.color = 0  # WHITE
-            i.p = None
-        time = 0
-        for i in self.nodi:
-            if i.color == 0:
-                time = self.DFS_Visit(i, time)
+    def find(self, parent, i):
+        if parent[i] == i:
+            return i
+        return self.find(parent, parent[i])
 
-    def DFS_Visit(self, u, time):
-        time = time + 1
-        u.d = time
-        u.color = 1  # GRAY
-
-        #costruisco la lista di adiacenza per il nodo u
-        adj = []
-        for i in range(len(self.nodi)):
-            if self.m[u.id][i] == 1:
-                adj.append(self.nodi[i])
-
-        for v in adj:
-            if v.color == 0:
-                v.p = u
-                time = self.DFS_Visit(v, time)
-        u.color = 2
-        time = time + 1
-        u.f = time
-        return time
-
-    def reverse_DFS(self):
-        self.sort()
-        for i in self.nodi:
-            i.color = 0
-            i.p = None
-        time = 0
-        q = 0
-        for i in self.nodi:
-            if i.color == 0:
-                time = self.reverse_DFS_Visit(i, time)
-                q += 1
-        return q
-
-    def reverse_DFS_Visit(self, u, time):
-        time = time + 1
-        u.d = time
-        u.color = 1
-
-        #costruisco la lista di adiacenza per il nodo u del grafo G trasposto
-        adj = []
-        for i in range(len(self.nodi)):
-            if self.m[i][u.id] == 1:
-                for h in self.nodi:
-                    if h.id == i:
-                        adj.append(h)
-
-        for v in adj:
-            if v.color == 0:
-                v.p = u
-                time = self.reverse_DFS_Visit(v, time)
-        u.color = 2
-        time = time + 1
-        u.f = time
-        return time
-
-    #Non utilizzato nei test, serve per vedere i nodi di ogni scc
-    def SCC(self):
-        self.reverse_DFS()
-        self.sort()
-        comp = []
-        i = 0
-        while i < len(self.nodi):
-            discovered = self.nodi[i].d
-            comp.append([])
-            comp[len(comp) - 1].append(self.nodi[i])
-            i = i+1
-            for j in range(i,len(self.nodi)):
-                if self.nodi[j].d > discovered:
-                    comp[len(comp)-1].append(self.nodi[j])
-                    i = i+1
-        return comp
-
-    #ordina in modo decrescente i nodi in base al loro tempo di completamento di visita
+        #ordina in modo decrescente i nodi in base al loro tempo di completamento di visita
     def sort(self):
         self.nodi.sort(key=lambda x: x.f, reverse=True)
 
+    def archi_sort(self):
+        self.m = sorted(self.m, key=lambda item: item[2])
+
+    def get_all_connected_groups(self):
+        already_seen = set()
+        result = []
+        for node in grafo.m.keys():
+            if node not in already_seen:
+                connected_group, already_seen = self.get_connected_group(node, already_seen)
+                result.append(connected_group)
+        return result
+
+    def get_connected_group(self,node, already_seen):
+        result = []
+        nodes = set([node])
+        while nodes:
+            node = nodes.pop()
+            already_seen.add(node)
+            nodes = nodes or {v[0] for v in grafo.m[node]} - already_seen
+            result.append(node)
+        return result, already_seen
 
 
+if __name__ == '__main__':
+    print("creating new grafo")
+    G = nx.Graph()
+    grafo = Grafo(20,5)
+    G.add_nodes_from(map(lambda Nodo: Nodo.id, grafo.nodi))
+    for k, v in grafo.m.items():
+        for vv in v:
+            G.add_edge(k,vv[0])
+    #grafo.nodi = (0, 1, 2, 3, 4)
+    #edge = (1, 0, 1)
+    #grafo.m.add(edge)
+    #edge = (2, 3, 1)
+    #grafo.m.add(edge)
+    #edge = (3, 4, 1)
+    #grafo.m.add(edge)
+    cc = grafo.get_all_connected_groups()
+    for nodo in cc:
+        print(nodo)
+    nx.draw(G, with_labels=True, font_weight='bold')
+    plt.show()
