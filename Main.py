@@ -2,22 +2,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from Test import test
+percentuali = list()
+nodi = [10, 20, 30, 40, 50, 60]
+percentuali = np.arange(0.0,0.5,0.05)  # crea vettore con elementi 0,0.05,0.10,...,1.95
+t = test(nodi, percentuali)
 
-G = nx.Graph()
-nodi = [50, 100, 150, 200, 250, 300]
-percentuali = np.arange(0.0, 2.0, 0.05)  # crea vettore con elementi 0,0.05,0.10,...,1.95
-#t = test(nodi, percentuali)
-for line in nx.generate_adjlist(G):
-    print(line)
-# write edgelist to grid.edgelist
-nx.write_edgelist(G, path="grid.edgelist", delimiter=":")
-# read edgelist from grid.edgelist
-H = nx.read_edgelist(path="grid.edgelist", delimiter=":")
-
-nx.draw(H)
 #Creo i grafici
 
-#plt.figure(1)
-#legenda = []
+plt.figure(1)
+legenda = []
+for i in range(len(t[0])):
+    plt.plot(percentuali, t[0][i])
+    stringa = str(nodi[i]) + " nodi nel grafo"
+    legenda.append(stringa)
+plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
+plt.ylabel("Tempo impiegato")
+plt.legend(legenda)
 
+plt.figure(2)
+legenda = []
+for i in range(len(t[1])):
+    plt.plot(percentuali, t[1][i])
+    stringa = str(nodi[i]) + " nodi nel grafo"
+    legenda.append(stringa)
+plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
+plt.ylabel("Numero di componenti connesse")
+plt.legend(legenda)
+
+plt.figure(3)
+legenda = []
+for i in range(len(t[2])):
+    plt.plot(percentuali, t[2][i])
+    stringa = str(nodi[i]) + " nodi nel grafo"
+    legenda.append(stringa)
+plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
+plt.ylabel("Peso totale del grafo")
+plt.legend(legenda)
 plt.show()
