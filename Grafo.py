@@ -12,7 +12,7 @@ class Grafo:
     #    self.nodi = set()
     #    self.m = set()
 
-    # POST: creates a random connected graph with a V-1 edges
+    # creates a random connected graph with a V-1 edges
     def createRandom(self, n, p):
         m = dict()
         for i in range(n):
@@ -31,20 +31,24 @@ class Grafo:
                         m[j].add(edge2)
         return m
 
+    #sorts all edges by their weight in increasing order 
     def edge_sort(self):
-        edges = list()
+        edges = []
         for k, v in self.m.items():
             for vv in v:
                 edges.append((k, vv[0],vv[1]))
         edges = sorted(edges, key=lambda item: item[2])
         return edges
 
+    #Returns the parent for a given node i
     def find(self, parent, i):
         if parent[i] == i:
             return i
         return self.find(parent, parent[i])
 
+    #Performs the union of two sets x and y based 20000000000w
     def union(self, parent, rank, x, y):
+        #Finds the representative of each set
         xroot = self.find(parent, x)
         yroot = self.find(parent, y)
 
@@ -54,32 +58,50 @@ class Grafo:
             parent[xroot] = yroot
         elif rank[xroot] > rank[yroot]:
             parent[yroot] = xroot
-
             # If ranks are same, then make one as root
         # and increment its rank by one
         else:
             parent[yroot] = xroot
             rank[xroot] += 1
 
-    def get_all_connected_groups(self):
-        already_seen = set()
-        result = []
-        for node in self.m.keys():
-            if node not in already_seen:
-                connected_group, already_seen = self.get_connected_group(node, already_seen)
-                result.append(connected_group)
+    #initialises the sets for union-find algorithm
+    def make_set(self):
+        parent = []
+        rank = []
+        for node in range(len(self.m.keys())):
+            parent.append(node)
+            rank.append(0)
+        return parent,rank
+
+    #Returns the list of connected components as set of vertices
+    def connected_components(self,parent):
+        result = dict()
+        i=0
+        for p in parent:
+            x=self.find(parent,parent[i])
+            if x not in result.keys():
+                result[x]=set()
+                result[x].add(x)
+            else:
+                result[x].add(i)
+            i+=1
         return result
 
-    def get_connected_group(self,node, already_seen):
-        result = []
-        nodes = set([node])
-        while nodes:
-            node = nodes.pop()
-            already_seen.add(node)
-            for n in {v[0] for v in self.m[node]} - already_seen - nodes:
-                nodes.add(n)
-            result.append(node)
-        return result, already_seen
+    #Performs union-find algorithm for connected components on the graph
+    def union_find(self):
+        parent,rank=self.make_set()
+        edges = []
+        for k, v in self.m.items():
+            for vv in v:
+                edges.append((k, vv[0]))
+        for u,v in edges:
+            #print(u,v,w)
+            x = self.find(parent, u)
+            y = self.find(parent, v)
+            if x != y:
+                self.union(parent, rank, x, y)
+        return parent,rank
+
     def draw(self,G):
 
         esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] <= 3]
@@ -130,18 +152,14 @@ class Grafo:
         e = 0  # An index variable, used for result[]
 
         # Step 1:  Sort all the edges in non-decreasing
-        # order of their
-        # weight.  If we are not allowed to change the
-        # given graph, we can create a copy of graph
+        # order of their weight.  If we are not allowed
+        # to change the given graph, we can create a copy
+        # of graph
         edges = self.edge_sort()
 
-        parent = []
-        rank = []
-
         # Create V subsets with single elements
-        for node in range(len(self.m.keys())):
-            parent.append(node)
-            rank.append(0)
+        parent,rank = self.make_set()
+
         if len(edges) < len(self.m.keys()) - 1:
             #print("Given graph can't be connected")
             return
@@ -163,8 +181,8 @@ class Grafo:
                 result.append([u, v, weight])
                 self.union(parent, rank, x, y)
                 # Else discard the edge
-        H = nx.Graph()
-        H.add_nodes_from(self.m.keys())
+        #H = nx.Graph()
+        #H.add_nodes_from(self.m.keys())
         # print the contents of result[] to display the built MST
         if(e < len(self.m.keys()) -1):
             print("Cannot build MST for this graph. The graph is not connected")
@@ -180,7 +198,7 @@ class Grafo:
 if __name__ == '__main__':
     print("creating new grafo")
 
-    grafo = Grafo(20,10)
+    grafo = Grafo(20,0.5)
     G = nx.Graph()
     G.add_nodes_from(grafo.m.keys())
     for k, v in grafo.m.items():
@@ -188,8 +206,7 @@ if __name__ == '__main__':
             G.add_edge(k, vv[0], weight=vv[1])
     grafo.draw(G)
 
-    cc = grafo.get_all_connected_groups()
-    print(cc)
-    edges = grafo.edge_sort()
-    print(edges)
-    grafo.KruskalMST()
+    parent,rank = grafo.union_find()
+    result = grafo.connected_components(parent)
+    for i in result.keys():
+        print(result[i])
