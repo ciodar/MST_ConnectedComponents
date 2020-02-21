@@ -31,7 +31,7 @@ class Grafo:
                         m[j].add(edge2)
         return m
 
-    #sorts all edges by their weight in increasing order 
+    #sorts all edges by their weight in increasing order
     def edge_sort(self):
         edges = []
         for k, v in self.m.items():
