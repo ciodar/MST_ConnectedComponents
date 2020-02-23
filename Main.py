@@ -15,8 +15,8 @@ for i in range(len(t[0])):
     plt.plot(percentuali, t[0][i])
     stringa = str(nodi[i]) + " nodi nel grafo"
     legenda.append(stringa)
-plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
-plt.ylabel("Tempo impiegato")
+plt.xlabel("Proababilità di creazione degli archi")
+plt.ylabel("Tempo impiegato (s)")
 plt.legend(legenda)
 
 plt.figure(2)
@@ -25,7 +25,7 @@ for i in range(len(t[1])):
     plt.plot(percentuali, t[1][i])
     stringa = str(nodi[i]) + " nodi nel grafo"
     legenda.append(stringa)
-plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
+plt.xlabel("Probabilità di creazione degli archi")
 plt.ylabel("Numero di componenti connesse")
 plt.legend(legenda)
 
@@ -35,7 +35,7 @@ for i in range(len(t[2])):
     plt.plot(percentuali, t[2][i])
     stringa = str(nodi[i]) + " nodi nel grafo"
     legenda.append(stringa)
-plt.xlabel("Percentuale di riempimento della matrice di adiacenza")
-plt.ylabel("Peso totale del grafo")
+plt.xlabel("Probabilità di creazione degli archi")
+plt.ylabel("Peso totale dell'albero")
 plt.legend(legenda)
 plt.show()

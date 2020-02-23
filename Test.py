@@ -1,8 +1,8 @@
 from timeit import default_timer as timer
 from Grafo import Grafo
 
-prove_max = 100
-n_prove = 50
+prove_max = 200
+n_prove = 100
 
 def test(nodi, percentuali):
     tempi = []
